@@ -130,16 +130,34 @@ class DaysCounter:
 # print(d2 - d1)  # выведет: (252550130755, (2923033, 79555)), то есть 2 923 033 дней и 79 555 секунд, или 252 550 130 755 секунд в сумме
 
 
-if __name__ == "__main__":
-    print("Формат ввода даты: \"ГОД МЕСЯЦ ДЕНЬ ЧАС МИНУТА СЕКУНДА\". Например: 980 2 12 10 30 1")
-    d1_raw = input("Введите начальную дату: ")
-    d2_raw = input("Введите конечную дату: ")
+def solve(d1_raw, d2_raw) -> tuple[int, int]:
     y1, m1, d1, h1, n1, s1 = d1_raw.strip().split(' ')
     y2, m2, d2, h2, n2, s2 = d2_raw.strip().split(' ')
     start = DateToSeconds(DaysCounter(int(y1), int(m1), int(d1)).days, int(h1), int(n1), int(s1))
     end = DateToSeconds(DaysCounter(int(y2), int(m2), int(d2)).days, int(h2), int(n2), int(s2))
-    result = end - start
-    total_seconds = result[0]
-    days, seconds = result[1]
-    print(days, seconds)
+    # result = end - start
+    # total_seconds = result[0]
+    # days, seconds = result[1]
+    return (end - start)[1]
+
+
+def parse_file(fname) -> tuple[str, str]:
+    d1 = None
+    d2 = None
+    with open(fname, 'r') as f:
+        d1 = f.readline()
+        d2 = f.readline()
+    return d1, d2
+
+
+def write_to_file(file_name: str, days: int, seconds: int) -> None:
+    with open(file_name, 'w') as f:
+        f.write(f"{days} {seconds}\n")
+
+
+if __name__ == "__main__":
+    import os
+    files = [f for f in os.listdir('.') if os.path.isfile(f) and f.startswith('input') and f.endswith('.txt')]
+    for file_name in files:
+        write_to_file(f"output{file_name[5:]}", *solve(*parse_file(file_name)))
 
