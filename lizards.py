@@ -53,3 +53,93 @@
 -	От 10 дня 9 месяца 14:15:16 до 11 дня 9 месяца 12:21:11 прошло 79555 секунд.
 
 """
+
+
+class DateToSeconds:
+    days: int
+    hours: int
+    minutes: int
+    seconds: int
+    seconds_in_minute = 60
+    minutes_in_hours = 60
+    hours_in_day = 24
+
+    def __init__(self, days, hours, minutes, seconds) -> None:
+        self.days = days
+        self.hours = hours + 1
+        self.minutes = minutes + 1
+        self.seconds = seconds + 1
+
+    def convert_days_to_hours(self, days) -> int:
+        return self.hours_in_day * days
+
+    def convert_hours_to_minutes(self, hours) -> int:
+        return self.minutes_in_hours * hours
+
+    def convert_minutes_to_seconds(self, minutes) -> int:
+        return self.seconds_in_minute * minutes
+
+    def total_hours(self) -> int:
+        return self.hours + self.convert_days_to_hours(self.days)
+
+    def total_minutes(self) -> int:
+        return self.minutes + self.convert_hours_to_minutes(self.total_hours())
+
+    def total_seconds(self) -> int:
+        return self.seconds + self.convert_minutes_to_seconds(self.total_minutes())
+
+    def seconds_in_day(self) -> int:
+        return 60 * 60 * 24
+
+    def __sub__(self, other) -> tuple[int, tuple[int, int]]:
+        result = self.total_seconds() - other.total_seconds()
+        days = result // self.seconds_in_day()
+        seconds = result % self.seconds_in_day()
+        return result, (days, seconds)
+
+
+class DaysCounter:
+    year: int
+    month: int
+    day: int
+    MONTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    def __init__(self, year, month, day):
+        self.year = year - 1
+        self.month = month - 1
+        self.day = day
+
+    def __calc_days_in_months(self):
+        if self.month < 1:
+            return self.MONTHS[0]
+        total = 0
+        for i in range(0, self.month):
+            total += self.MONTHS[i]
+        return total
+
+    @property
+    def days(self):
+        return (self.year * 365) + self.__calc_days_in_months() + self.day
+
+
+# d1 = DateToSeconds(DaysCounter(980, 2, 12).days, 10, 30, 1)
+# d2 = DateToSeconds(DaysCounter(980, 3, 1).days, 10, 31, 37)
+# print(d2 - d1)  # выведет: (1468896, (17, 96)), то есть 17 дней и 96 секунд, или 1 468 896 секунд в сумме
+# d1 = DateToSeconds(DaysCounter(1001, 5, 20).days, 14, 15, 16)
+# d2 = DateToSeconds(DaysCounter(9009, 9, 11).days, 12, 21, 11)
+# print(d2 - d1)  # выведет: (252550130755, (2923033, 79555)), то есть 2 923 033 дней и 79 555 секунд, или 252 550 130 755 секунд в сумме
+
+
+if __name__ == "__main__":
+    print("Формат ввода даты: \"ГОД МЕСЯЦ ДЕНЬ ЧАС МИНУТА СЕКУНДА\". Например: 980 2 12 10 30 1")
+    d1_raw = input("Введите начальную дату: ")
+    d2_raw = input("Введите конечную дату: ")
+    y1, m1, d1, h1, n1, s1 = d1_raw.strip().split(' ')
+    y2, m2, d2, h2, n2, s2 = d2_raw.strip().split(' ')
+    start = DateToSeconds(DaysCounter(int(y1), int(m1), int(d1)).days, int(h1), int(n1), int(s1))
+    end = DateToSeconds(DaysCounter(int(y2), int(m2), int(d2)).days, int(h2), int(n2), int(s2))
+    result = end - start
+    total_seconds = result[0]
+    days, seconds = result[1]
+    print(days, seconds)
+
