@@ -1,1 +1,0 @@
-# algorithm-tasks-python
